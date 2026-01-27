@@ -101,3 +101,97 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Marketing agency website for 'The Impacts' with SEO, Meta Ads, and Social Media Marketing services. Backend APIs needed for contact form submissions and newsletter subscriptions saved to MongoDB."
+
+backend:
+  - task: "Contact form API - POST /api/contact"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented POST /api/contact endpoint to save contact form submissions to MongoDB with fields: name, email, phone, service, budget, message"
+
+  - task: "Get contacts API - GET /api/contact"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented GET /api/contact endpoint to retrieve all contact submissions"
+
+  - task: "Newsletter subscribe API - POST /api/newsletter"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented POST /api/newsletter endpoint to subscribe emails to newsletter. Returns 409 if email already exists."
+
+  - task: "Get newsletter subscribers - GET /api/newsletter"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented GET /api/newsletter endpoint to retrieve all newsletter subscribers"
+
+frontend:
+  - task: "Contact form integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/LandingPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated ContactSection component to call POST /api/contact with form data"
+
+  - task: "Newsletter subscription integration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/LandingPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated Footer component to call POST /api/newsletter for newsletter subscriptions"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Contact form API - POST /api/contact"
+    - "Newsletter subscribe API - POST /api/newsletter"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Backend APIs implemented for contact form and newsletter. Need testing for: 1) POST /api/contact with valid/invalid data, 2) POST /api/newsletter with new and duplicate emails, 3) GET endpoints for retrieving data."
