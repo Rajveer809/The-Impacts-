@@ -234,6 +234,60 @@ export const testimonials = [
     content: "As a local business, ranking on Google was crucial. The Impacts got us to #1 for all our target keywords. Patient inquiries have tripled!",
     rating: 5,
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&q=80"
+  },
+  {
+    id: 5,
+    name: "Jennifer Walsh",
+    position: "VP of Marketing",
+    company: "CloudSync Technologies",
+    content: "Working with The Impacts was a game-changer for our B2B marketing. They understand complex sales cycles and delivered a 110% increase in qualified leads within 4 months.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&q=80"
+  },
+  {
+    id: 6,
+    name: "Robert Thompson",
+    position: "Owner",
+    company: "Urban Bites Group",
+    content: "The Impacts helped us expand from 3 to 12 locations with their targeted local advertising. Their data-driven approach to Meta Ads is exceptional. ROI speaks for itself!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80"
+  },
+  {
+    id: 7,
+    name: "Amanda Foster",
+    position: "Brand Director",
+    company: "LuxeBeauty Co.",
+    content: "The influencer marketing strategy they developed generated over $2M in sales. Their understanding of the beauty industry and social trends is remarkable.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80"
+  },
+  {
+    id: 8,
+    name: "James Morrison",
+    position: "CTO",
+    company: "HealthTrack App",
+    content: "Our app install costs dropped by 60% while quality improved dramatically. The Impacts team knows mobile advertising inside and out. Incredible results!",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&q=80"
+  },
+  {
+    id: 9,
+    name: "Lisa Wang",
+    position: "E-commerce Manager",
+    company: "FitGear Pro",
+    content: "From struggling with 2x ROAS to consistently hitting 5.8x - The Impacts revolutionized our paid advertising. Their optimization strategies are pure gold.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80"
+  },
+  {
+    id: 10,
+    name: "Marcus Johnson",
+    position: "CEO",
+    company: "GamersUnite Platform",
+    content: "They built us a community of 125K passionate gamers in under a year. The engagement rates are off the charts. Best investment we ever made in marketing.",
+    rating: 5,
+    avatar: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&q=80"
   }
 ];
 
