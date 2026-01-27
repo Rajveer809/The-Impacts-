@@ -997,100 +997,147 @@ const ContactSection = () => {
 };
 
 // Footer Component
-const Footer = () => (
-  <footer className="bg-card border-t border-border">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-        {/* Brand column */}
-        <div className="col-span-2 md:col-span-1">
-          <a href="#" className="flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-primary-foreground" />
+const Footer = () => {
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState(null);
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    
+    setIsSubscribing(true);
+    setNewsletterStatus(null);
+    
+    try {
+      await axios.post(`${API}/newsletter`, { email: newsletterEmail });
+      setNewsletterStatus('success');
+      setNewsletterEmail('');
+    } catch (error) {
+      if (error.response?.status === 409) {
+        setNewsletterStatus('exists');
+      } else {
+        setNewsletterStatus('error');
+      }
+    } finally {
+      setIsSubscribing(false);
+      setTimeout(() => setNewsletterStatus(null), 4000);
+    }
+  };
+
+  return (
+    <footer className="bg-card border-t border-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+          {/* Brand column */}
+          <div className="col-span-2 md:col-span-1">
+            <a href="#" className="flex items-center gap-2 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-xl">The Impacts</span>
+            </a>
+            <p className="text-muted-foreground text-sm mb-6">
+              Transforming digital presence into measurable impact through strategic marketing solutions.
+            </p>
+            <div className="flex gap-3">
+              {socialLinks.map((link) => {
+                const Icon = iconMap[link.icon];
+                return (
+                  <a
+                    key={link.id}
+                    href={link.href}
+                    className="w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
+                    aria-label={link.name}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                );
+              })}
             </div>
-            <span className="font-bold text-xl">The Impacts</span>
-          </a>
-          <p className="text-muted-foreground text-sm mb-6">
-            Transforming digital presence into measurable impact through strategic marketing solutions.
-          </p>
-          <div className="flex gap-3">
-            {socialLinks.map((link) => {
-              const Icon = iconMap[link.icon];
-              return (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  className="w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                  aria-label={link.name}
-                >
-                  <Icon className="w-4 h-4" />
-                </a>
-              );
-            })}
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="font-semibold mb-4">Services</h4>
+            <ul className="space-y-3">
+              {footerLinks.services.map((link, i) => (
+                <li key={i}>
+                  <a href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-semibold mb-4">Company</h4>
+            <ul className="space-y-3">
+              {footerLinks.company.map((link, i) => (
+                <li key={i}>
+                  <a href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="font-semibold mb-4">Stay Updated</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Subscribe to our newsletter for marketing insights.
+            </p>
+            <form className="space-y-2" onSubmit={handleNewsletterSubmit}>
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder="Your email"
+                  className="h-10"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  required
+                />
+                <Button size="sm" className="h-10 px-4" type="submit" disabled={isSubscribing}>
+                  {isSubscribing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              {newsletterStatus === 'success' && (
+                <p className="text-xs text-primary">Thanks for subscribing!</p>
+              )}
+              {newsletterStatus === 'exists' && (
+                <p className="text-xs text-muted-foreground">Already subscribed!</p>
+              )}
+              {newsletterStatus === 'error' && (
+                <p className="text-xs text-destructive">Something went wrong. Try again.</p>
+              )}
+            </form>
           </div>
         </div>
 
-        {/* Services */}
-        <div>
-          <h4 className="font-semibold mb-4">Services</h4>
-          <ul className="space-y-3">
-            {footerLinks.services.map((link, i) => (
-              <li key={i}>
-                <a href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <div className="section-divider my-10" />
 
-        {/* Company */}
-        <div>
-          <h4 className="font-semibold mb-4">Company</h4>
-          <ul className="space-y-3">
-            {footerLinks.company.map((link, i) => (
-              <li key={i}>
-                <a href={link.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  {link.label}
-                </a>
-              </li>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} The Impacts. All rights reserved.</p>
+          <div className="flex gap-6">
+            {footerLinks.legal.map((link, i) => (
+              <a key={i} href={link.href} className="hover:text-foreground transition-colors">
+                {link.label}
+              </a>
             ))}
-          </ul>
-        </div>
-
-        {/* Newsletter */}
-        <div>
-          <h4 className="font-semibold mb-4">Stay Updated</h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            Subscribe to our newsletter for marketing insights.
-          </p>
-          <form className="flex gap-2" onSubmit={(e) => e.preventDefault()}>
-            <Input
-              type="email"
-              placeholder="Your email"
-              className="h-10"
-            />
-            <Button size="sm" className="h-10 px-4">
-              <Send className="w-4 h-4" />
-            </Button>
-          </form>
+          </div>
         </div>
       </div>
-
-      <div className="section-divider my-10" />
-
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} The Impacts. All rights reserved.</p>
-        <div className="flex gap-6">
-          {footerLinks.legal.map((link, i) => (
-            <a key={i} href={link.href} className="hover:text-foreground transition-colors">
-              {link.label}
-            </a>
-          ))}
-        </div>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 // Payment Modal Component (Mock)
 const PaymentModal = ({ isOpen, onClose, plan, isYearly }) => {
