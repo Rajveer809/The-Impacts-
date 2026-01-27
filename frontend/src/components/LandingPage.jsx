@@ -766,10 +766,17 @@ const ContactSection = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone || null,
-        service: formData.service,
+        service: formData.service || null,
         budget: formData.budget || null,
         message: formData.message
       };
+
+      // Validate required fields before sending
+      if (!payload.name || !payload.email || !payload.service || !payload.message) {
+        setSubmitStatus('error');
+        setIsSubmitting(false);
+        return;
+      }
       
       await axios.post(`${API}/contact`, payload);
       
