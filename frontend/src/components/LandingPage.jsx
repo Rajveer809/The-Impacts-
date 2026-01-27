@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import {
   Search, Target, Share2, Menu, X, Sun, Moon, ChevronDown,
   ArrowRight, Check, Star, Twitter, Linkedin, Instagram, Facebook,
   Mail, Phone, MapPin, Send, Sparkles, TrendingUp, Users, Award,
-  CreditCard, Wallet
+  CreditCard, Wallet, Loader2
 } from 'lucide-react';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Input } from './ui/input';
