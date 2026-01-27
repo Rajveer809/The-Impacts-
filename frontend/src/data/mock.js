@@ -25,8 +25,8 @@ export const services = [
 ];
 
 export const stats = [
-  { id: 1, value: 8, suffix: "+", label: "Years of Excellence" },
-  { id: 2, value: 250, suffix: "+", label: "Projects Delivered" },
+  { id: 1, value: 12, suffix: "+", label: "Years of Excellence" },
+  { id: 2, value: 500, suffix: "+", label: "Projects Delivered" },
   { id: 3, value: 98, suffix: "%", label: "Client Satisfaction" },
   { id: 4, value: 340, suffix: "%", label: "Average ROI Increase" }
 ];
@@ -85,6 +85,60 @@ export const portfolio = [
     description: "Campaign reached 2M+ users with 12% engagement",
     metrics: { before: "50K", after: "2M+", metric: "Reach" },
     image: "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=600&q=80"
+  },
+  {
+    id: 7,
+    title: "SaaS Growth Strategy",
+    client: "CloudSync Technologies",
+    category: "seo",
+    description: "Doubled MRR through organic acquisition channels",
+    metrics: { before: "$45K", after: "$95K", metric: "Monthly Revenue" },
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=80"
+  },
+  {
+    id: 8,
+    title: "Restaurant Chain Expansion",
+    client: "Urban Bites Group",
+    category: "meta",
+    description: "Drove 15,000+ store visits across 12 locations",
+    metrics: { before: "800", after: "15K+", metric: "Monthly Store Visits" },
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80"
+  },
+  {
+    id: 9,
+    title: "Influencer Partnership",
+    client: "LuxeBeauty Co.",
+    category: "social",
+    description: "Generated $2.3M in attributed sales through influencer marketing",
+    metrics: { before: "$0", after: "$2.3M", metric: "Attributed Sales" },
+    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80"
+  },
+  {
+    id: 10,
+    title: "B2B Lead Pipeline",
+    client: "IndustrialTech Corp",
+    category: "seo",
+    description: "Built sustainable pipeline of enterprise leads",
+    metrics: { before: "12", after: "89", metric: "Monthly Qualified Leads" },
+    image: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&q=80"
+  },
+  {
+    id: 11,
+    title: "App Install Campaign",
+    client: "HealthTrack App",
+    category: "meta",
+    description: "Achieved 50,000 app installs at $1.20 CPI",
+    metrics: { before: "5K", after: "55K", metric: "Total Installs" },
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80"
+  },
+  {
+    id: 12,
+    title: "Community Building",
+    client: "GamersUnite Platform",
+    category: "social",
+    description: "Created thriving gaming community with high engagement",
+    metrics: { before: "5K", after: "125K", metric: "Community Members" },
+    image: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=600&q=80"
   }
 ];
 
