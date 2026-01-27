@@ -967,7 +967,7 @@ const ContactSection = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <span className="animate-spin mr-2">⏳</span>
+                    <Loader2 className="mr-2 w-5 h-5 animate-spin" />
                     Sending...
                   </>
                 ) : (
@@ -986,6 +986,16 @@ const ContactSection = () => {
                 >
                   <Check className="w-5 h-5 inline mr-2" />
                   Thank you! We'll be in touch soon.
+                </motion.div>
+              )}
+
+              {submitStatus === 'error' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-lg bg-destructive/10 text-destructive text-center"
+                >
+                  Something went wrong. Please try again.
                 </motion.div>
               )}
             </form>
