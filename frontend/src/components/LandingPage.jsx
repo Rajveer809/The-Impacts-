@@ -759,23 +759,36 @@ const ContactSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
     
-    // Simulate API call - will be replaced with real backend
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Mock success
-    setSubmitStatus('success');
-    setIsSubmitting(false);
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      service: '',
-      budget: '',
-      message: ''
-    });
-
-    setTimeout(() => setSubmitStatus(null), 5000);
+    try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        service: formData.service,
+        budget: formData.budget || null,
+        message: formData.message
+      };
+      
+      await axios.post(`${API}/contact`, payload);
+      
+      setSubmitStatus('success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        service: '',
+        budget: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setSubmitStatus(null), 5000);
+    }
   };
 
   return (
