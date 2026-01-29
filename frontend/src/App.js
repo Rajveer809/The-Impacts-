@@ -1,5 +1,6 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import LandingPage from "./components/LandingPage";
 import PrivacyPolicy from "./components/PrivacyPolicy";
 import TermsOfService from "./components/TermsOfService";
@@ -14,6 +15,7 @@ function App() {
           <Route path="/terms-of-service" element={<TermsOfService />} />
         </Routes>
       </BrowserRouter>
+      <SpeedInsights />
     </div>
   );
 }
