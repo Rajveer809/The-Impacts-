@@ -62,7 +62,8 @@
     "test": "craco test",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build": "..."
    },
   "browserslist": {
     "production": [
