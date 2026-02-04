@@ -154,10 +154,6 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
-@app.get("/")
-async def health():
-    return {"status": "The Impacts API is live"}
-
 # Include the router in the main app
 app.include_router(api_router)
 
