@@ -18,6 +18,9 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+if not MONGO_URL or not DB_NAME:
+    raise RuntimeError("MongoDB environment variables are missing")
+
 
 # Create the main app without a prefix
 app = FastAPI(title="The Impacts API", version="1.0.0")
@@ -152,6 +155,10 @@ async def get_status_checks():
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
+@app.get("/")
+async def health():
+    return {"status": "The Impacts API is live"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -179,3 +186,4 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
