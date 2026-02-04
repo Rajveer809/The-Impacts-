@@ -19,7 +19,6 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 if not MONGO_URL or not DB_NAME:
-    raise RuntimeError("MongoDB environment variables are missing")
 
 
 # Create the main app without a prefix
