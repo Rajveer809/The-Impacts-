@@ -158,12 +158,16 @@ app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["https://theimpacts.agency/",
-        "https://www.theimpacts.agency",
+    allow_origins=[
+        "https://theimpacts.agency",      # Your frontend domain
+        "https://www.theimpacts.agency",  # With www
+        "http://localhost:3000",          # Local development
+        "*"                               # Or allow all (less secure)
     ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Configure logging
 logging.basicConfig(
