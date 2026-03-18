@@ -9,6 +9,8 @@
 //    A1: Timestamp | B1: Name | C1: Email | D1: Phone | E1: Service | F1: Budget | G1: Message
 // 4. In "Newsletter" sheet, add these headers in Row 1:
 //    A1: Timestamp | B1: Email
+// 5. Create a third sheet named "Payments" with headers:
+//    A1: Timestamp | B1: Plan | C1: Price (USD) | D1: Price (INR) | E1: Billing | F1: Payment ID | G1: Order ID
 // 5. Click Extensions > Apps Script
 // 6. Delete any existing code and paste this entire file
 // 7. Click Deploy > New Deployment
@@ -21,6 +23,7 @@
 
 const SHEET_CONTACTS = 'Contacts';
 const SHEET_NEWSLETTER = 'Newsletter';
+const SHEET_PAYMENTS = 'Payments';
 
 // ⬇️ CHANGE THIS to your email address to receive notifications
 const NOTIFY_EMAIL = 'rajveer@theimpacts.com';
@@ -53,6 +56,27 @@ function doPost(e) {
         .createTextOutput(JSON.stringify({ status: 'success', message: 'Subscribed successfully' }))
         .setMimeType(ContentService.MimeType.JSON);
         
+    } else if (data.type === 'payment') {
+      // Handle payment logging
+      const sheet = ss.getSheetByName(SHEET_PAYMENTS);
+      
+      sheet.appendRow([
+        new Date().toISOString(),
+        data.plan || '',
+        data.priceUSD || '',
+        data.priceINR || '',
+        data.billing || '',
+        data.paymentId || '',
+        data.orderId || ''
+      ]);
+
+      // Send payment notification email
+      sendPaymentNotification(data);
+      
+      return ContentService
+        .createTextOutput(JSON.stringify({ status: 'success', message: 'Payment logged' }))
+        .setMimeType(ContentService.MimeType.JSON);
+
     } else {
       // Handle contact form
       const sheet = ss.getSheetByName(SHEET_CONTACTS);
@@ -136,5 +160,38 @@ function sendNotificationEmail(data) {
   } catch (err) {
     // Log but don't fail the form submission if email fails
     Logger.log('Email notification failed: ' + err.toString());
+  }
+}
+
+// Send email notification when a payment is completed
+function sendPaymentNotification(data) {
+  try {
+    const subject = `💰 New Payment: ${data.plan} Plan — ₹${data.priceINR}`;
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #059669; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+          <h2 style="margin: 0;">💰 New Payment Received!</h2>
+          <p style="margin: 5px 0 0; opacity: 0.8;">The Impacts — Payment Notification</p>
+        </div>
+        <div style="border: 1px solid #e0e0e0; border-top: none; padding: 20px; border-radius: 0 0 8px 8px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Plan</td><td style="padding: 8px 0;">${data.plan}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Amount (INR)</td><td style="padding: 8px 0;">₹${data.priceINR}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Amount (USD)</td><td style="padding: 8px 0;">$${data.priceUSD}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Billing</td><td style="padding: 8px 0;">${data.billing}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Payment ID</td><td style="padding: 8px 0; font-family: monospace;">${data.paymentId}</td></tr>
+          </table>
+          <p style="margin-top: 20px; font-size: 12px; color: #999;">Received at ${new Date().toLocaleString()}</p>
+        </div>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: NOTIFY_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+  } catch (err) {
+    Logger.log('Payment notification email failed: ' + err.toString());
   }
 }

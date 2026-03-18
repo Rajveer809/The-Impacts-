@@ -1183,30 +1183,106 @@ const Footer = () => {
   );
 };
 
-// Payment Modal Component (Mock)
+// Payment Modal Component — Razorpay Integration
+const RAZORPAY_KEY = process.env.REACT_APP_RAZORPAY_KEY_ID;
+const INR_RATE = 83; // Approximate USD to INR conversion
+
 const PaymentModal = ({ isOpen, onClose, plan, isYearly }) => {
-  const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
-
-  const handlePayment = async () => {
-    setIsProcessing(true);
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsProcessing(false);
-    setPaymentComplete(true);
-  };
+  const [paymentError, setPaymentError] = useState('');
 
   const resetModal = () => {
-    setPaymentMethod('card');
     setIsProcessing(false);
     setPaymentComplete(false);
+    setPaymentError('');
     onClose();
+  };
+
+  const logPaymentToSheet = async (paymentData) => {
+    try {
+      if (GOOGLE_SHEET_URL) {
+        await fetch(GOOGLE_SHEET_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'payment', ...paymentData })
+        });
+      }
+    } catch (err) {
+      console.error('Failed to log payment:', err);
+    }
+  };
+
+  const handleRazorpayPayment = () => {
+    if (!RAZORPAY_KEY) {
+      setPaymentError('Payment gateway is not configured. Please contact support.');
+      return;
+    }
+
+    const priceUSD = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    const priceINR = priceUSD * INR_RATE;
+    const amountInPaise = priceINR * 100;
+
+    setIsProcessing(true);
+    setPaymentError('');
+
+    const options = {
+      key: RAZORPAY_KEY,
+      amount: amountInPaise,
+      currency: 'INR',
+      name: 'The Impacts',
+      description: `${plan.name} Plan — ${isYearly ? 'Yearly' : 'Monthly'}`,
+      image: '',
+      handler: function (response) {
+        // Payment successful
+        setIsProcessing(false);
+        setPaymentComplete(true);
+
+        logPaymentToSheet({
+          plan: plan.name,
+          priceUSD: priceUSD,
+          priceINR: priceINR,
+          billing: isYearly ? 'Yearly' : 'Monthly',
+          paymentId: response.razorpay_payment_id,
+          orderId: response.razorpay_order_id || '',
+          signature: response.razorpay_signature || '',
+        });
+      },
+      prefill: {
+        name: '',
+        email: '',
+        contact: '',
+      },
+      theme: {
+        color: '#10b981',
+      },
+      modal: {
+        ondismiss: function () {
+          setIsProcessing(false);
+        },
+      },
+    };
+
+    try {
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response) {
+        setIsProcessing(false);
+        setPaymentError(
+          response.error?.description || 'Payment failed. Please try again.'
+        );
+      });
+      razorpay.open();
+    } catch (err) {
+      setIsProcessing(false);
+      setPaymentError('Could not open payment gateway. Please try again.');
+    }
   };
 
   if (!plan) return null;
 
-  const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  const priceUSD = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+  const priceINR = priceUSD * INR_RATE;
 
   return (
     <Dialog open={isOpen} onOpenChange={resetModal}>
@@ -1218,7 +1294,7 @@ const PaymentModal = ({ isOpen, onClose, plan, isYearly }) => {
           <DialogDescription>
             {paymentComplete
               ? 'Thank you for your purchase. Our team will contact you shortly.'
-              : `${plan.description}`
+              : plan.description
             }
           </DialogDescription>
         </DialogHeader>
@@ -1242,98 +1318,63 @@ const PaymentModal = ({ isOpen, onClose, plan, isYearly }) => {
             <div className="p-4 rounded-lg bg-muted/50">
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">{plan.name} Plan</span>
-                <span className="font-bold text-lg">${price}/mo</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isYearly ? 'Billed annually' : 'Billed monthly'}
-              </p>
-            </div>
-
-            {/* Payment method selection */}
-            <div className="space-y-3">
-              <Label>Payment Method</Label>
-              <div className="grid grid-cols-3 gap-3">
-                <button
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-3 rounded-lg border-2 transition-colors ${
-                    paymentMethod === 'card'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5 mx-auto mb-1" />
-                  <span className="text-xs">Card</span>
-                </button>
-                <button
-                  onClick={() => setPaymentMethod('paypal')}
-                  className={`p-3 rounded-lg border-2 transition-colors ${
-                    paymentMethod === 'paypal'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <Wallet className="w-5 h-5 mx-auto mb-1" />
-                  <span className="text-xs">PayPal</span>
-                </button>
-                <button
-                  onClick={() => setPaymentMethod('razorpay')}
-                  className={`p-3 rounded-lg border-2 transition-colors ${
-                    paymentMethod === 'razorpay'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <Sparkles className="w-5 h-5 mx-auto mb-1" />
-                  <span className="text-xs">Razorpay</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Mock card inputs */}
-            {paymentMethod === 'card' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Card Number</Label>
-                  <Input placeholder="4242 4242 4242 4242" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Expiry Date</Label>
-                    <Input placeholder="MM/YY" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>CVC</Label>
-                    <Input placeholder="123" />
-                  </div>
+                <div className="text-right">
+                  <span className="font-bold text-lg">₹{priceINR.toLocaleString('en-IN')}</span>
+                  <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
               </div>
-            )}
-
-            {paymentMethod !== 'card' && (
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
+              <div className="flex justify-between items-center">
                 <p className="text-sm text-muted-foreground">
-                  You will be redirected to {paymentMethod === 'paypal' ? 'PayPal' : 'Razorpay'} to complete your payment.
+                  {isYearly ? 'Billed annually' : 'Billed monthly'}
                 </p>
+                <p className="text-xs text-muted-foreground">(~${priceUSD}/mo)</p>
+              </div>
+            </div>
+
+            {/* Plan features preview */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">What's included:</p>
+              <ul className="space-y-1.5">
+                {plan.features.slice(0, 4).map((feature, i) => (
+                  <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                    {feature}
+                  </li>
+                ))}
+                {plan.features.length > 4 && (
+                  <li className="text-sm text-muted-foreground pl-5.5">
+                    +{plan.features.length - 4} more features
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {paymentError && (
+              <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm text-center">
+                {paymentError}
               </div>
             )}
 
             <Button
-              onClick={handlePayment}
+              onClick={handleRazorpayPayment}
               className="w-full btn-glow"
               disabled={isProcessing}
             >
               {isProcessing ? (
                 <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Processing...
+                  <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                  Opening payment...
                 </>
               ) : (
-                `Pay $${price}`
+                <>
+                  <CreditCard className="mr-2 w-5 h-5" />
+                  Pay ₹{priceINR.toLocaleString('en-IN')}
+                </>
               )}
             </Button>
 
             <p className="text-xs text-center text-muted-foreground">
-              🔒 Secure payment. This is a demo checkout.
+              🔒 Secure payment powered by Razorpay. Supports UPI, Cards, Wallets & Netbanking.
             </p>
           </div>
         )}
