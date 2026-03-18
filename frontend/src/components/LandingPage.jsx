@@ -750,6 +750,7 @@ const ContactSection = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -760,6 +761,7 @@ const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
+    setSubmitError('');
     
     try {
       const payload = {
@@ -774,6 +776,15 @@ const ContactSection = () => {
       // Validate required fields before sending
       if (!payload.name || !payload.email || !payload.service || !payload.message) {
         setSubmitStatus('error');
+        setSubmitError('Please fill in all required fields.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Client-side message length check
+      if (payload.message.length < 10) {
+        setSubmitStatus('error');
+        setSubmitError('Message must be at least 10 characters long.');
         setIsSubmitting(false);
         return;
       }
@@ -791,10 +802,21 @@ const ContactSection = () => {
       });
     } catch (error) {
       console.error('Contact form error:', error);
+      // Extract validation error details from the backend 422 response
+      if (error.response?.status === 422 && error.response?.data?.detail) {
+        const details = error.response.data.detail;
+        const messages = details.map(d => {
+          const field = d.loc?.[d.loc.length - 1] || 'field';
+          return `${field}: ${d.msg}`;
+        });
+        setSubmitError(messages.join('. '));
+      } else {
+        setSubmitError('Something went wrong. Please try again.');
+      }
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
-      setTimeout(() => setSubmitStatus(null), 5000);
+      setTimeout(() => { setSubmitStatus(null); setSubmitError(''); }, 5000);
     }
   };
 
@@ -960,8 +982,9 @@ const ContactSection = () => {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  placeholder="Tell us about your project and goals..."
+                  placeholder="Tell us about your project and goals (min 10 characters)..."
                   rows={5}
+                  minLength={10}
                   required
                 />
               </div>
@@ -1002,7 +1025,7 @@ const ContactSection = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-lg bg-destructive/10 text-destructive text-center"
                 >
-                  Something went wrong. Please try again.
+                  {submitError || 'Something went wrong. Please try again.'}
                 </motion.div>
               )}
             </form>
