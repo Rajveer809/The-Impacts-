@@ -8,8 +8,7 @@ import {
   CreditCard, Wallet, Loader2
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const GOOGLE_SHEET_URL = process.env.REACT_APP_GOOGLE_SHEET_URL;
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Input } from './ui/input';
@@ -767,9 +766,9 @@ const ContactSection = () => {
       const payload = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone || null,
-        service: formData.service || null,
-        budget: formData.budget || null,
+        phone: formData.phone || '',
+        service: formData.service || '',
+        budget: formData.budget || '',
         message: formData.message
       };
 
@@ -788,8 +787,17 @@ const ContactSection = () => {
         setIsSubmitting(false);
         return;
       }
+
+      if (!GOOGLE_SHEET_URL) {
+        throw new Error('Form submission URL is not configured.');
+      }
       
-      await axios.post(`${API}/contact`, payload);
+      await fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'contact', ...payload })
+      });
       
       setSubmitStatus('success');
       setFormData({
@@ -802,17 +810,7 @@ const ContactSection = () => {
       });
     } catch (error) {
       console.error('Contact form error:', error);
-      // Extract validation error details from the backend 422 response
-      if (error.response?.status === 422 && error.response?.data?.detail) {
-        const details = error.response.data.detail;
-        const messages = details.map(d => {
-          const field = d.loc?.[d.loc.length - 1] || 'field';
-          return `${field}: ${d.msg}`;
-        });
-        setSubmitError(messages.join('. '));
-      } else {
-        setSubmitError('Something went wrong. Please try again.');
-      }
+      setSubmitError(error.message || 'Something went wrong. Please try again.');
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -1050,15 +1048,21 @@ const Footer = () => {
     setNewsletterStatus(null);
     
     try {
-      await axios.post(`${API}/newsletter`, { email: newsletterEmail });
+      if (!GOOGLE_SHEET_URL) {
+        throw new Error('Submission URL not configured.');
+      }
+
+      await fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'newsletter', email: newsletterEmail })
+      });
+
       setNewsletterStatus('success');
       setNewsletterEmail('');
     } catch (error) {
-      if (error.response?.status === 409) {
-        setNewsletterStatus('exists');
-      } else {
-        setNewsletterStatus('error');
-      }
+      setNewsletterStatus('error');
     } finally {
       setIsSubscribing(false);
       setTimeout(() => setNewsletterStatus(null), 4000);
