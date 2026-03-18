@@ -26,17 +26,17 @@ const SHEET_NEWSLETTER = 'Newsletter';
 const SHEET_PAYMENTS = 'Payments';
 
 // ⬇️ CHANGE THIS to your email address to receive notifications
-const NOTIFY_EMAIL = 'rajveer@theimpacts.com';
+const NOTIFY_EMAIL = 'rajveer@theimpacts.agency';
 
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    
+
     if (data.type === 'newsletter') {
       // Handle newsletter subscription
       const sheet = ss.getSheetByName(SHEET_NEWSLETTER);
-      
+
       // Check for duplicate email
       const emails = sheet.getRange(2, 2, Math.max(sheet.getLastRow() - 1, 1), 1).getValues();
       for (let i = 0; i < emails.length; i++) {
@@ -46,20 +46,20 @@ function doPost(e) {
             .setMimeType(ContentService.MimeType.JSON);
         }
       }
-      
+
       sheet.appendRow([
         new Date().toISOString(),
         data.email
       ]);
-      
+
       return ContentService
         .createTextOutput(JSON.stringify({ status: 'success', message: 'Subscribed successfully' }))
         .setMimeType(ContentService.MimeType.JSON);
-        
+
     } else if (data.type === 'payment') {
       // Handle payment logging
       const sheet = ss.getSheetByName(SHEET_PAYMENTS);
-      
+
       sheet.appendRow([
         new Date().toISOString(),
         data.plan || '',
@@ -72,7 +72,7 @@ function doPost(e) {
 
       // Send payment notification email
       sendPaymentNotification(data);
-      
+
       return ContentService
         .createTextOutput(JSON.stringify({ status: 'success', message: 'Payment logged' }))
         .setMimeType(ContentService.MimeType.JSON);
@@ -80,7 +80,7 @@ function doPost(e) {
     } else {
       // Handle contact form
       const sheet = ss.getSheetByName(SHEET_CONTACTS);
-      
+
       sheet.appendRow([
         new Date().toISOString(),
         data.name || '',
@@ -93,12 +93,12 @@ function doPost(e) {
 
       // Send email notification to business owner
       sendNotificationEmail(data);
-      
+
       return ContentService
         .createTextOutput(JSON.stringify({ status: 'success', message: 'Contact saved successfully' }))
         .setMimeType(ContentService.MimeType.JSON);
     }
-    
+
   } catch (error) {
     return ContentService
       .createTextOutput(JSON.stringify({ status: 'error', message: error.toString() }))
@@ -111,13 +111,13 @@ function testSetup() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const contacts = ss.getSheetByName(SHEET_CONTACTS);
   const newsletter = ss.getSheetByName(SHEET_NEWSLETTER);
-  
+
   if (!contacts) {
     Logger.log('ERROR: "Contacts" sheet not found. Create it first.');
   } else {
     Logger.log('✅ Contacts sheet found');
   }
-  
+
   if (!newsletter) {
     Logger.log('ERROR: "Newsletter" sheet not found. Create it first.');
   } else {
