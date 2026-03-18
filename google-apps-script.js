@@ -22,6 +22,9 @@
 const SHEET_CONTACTS = 'Contacts';
 const SHEET_NEWSLETTER = 'Newsletter';
 
+// ⬇️ CHANGE THIS to your email address to receive notifications
+const NOTIFY_EMAIL = 'rajveer@theimpacts.com';
+
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
@@ -63,6 +66,9 @@ function doPost(e) {
         data.budget || '',
         data.message || ''
       ]);
+
+      // Send email notification to business owner
+      sendNotificationEmail(data);
       
       return ContentService
         .createTextOutput(JSON.stringify({ status: 'success', message: 'Contact saved successfully' }))
@@ -92,5 +98,43 @@ function testSetup() {
     Logger.log('ERROR: "Newsletter" sheet not found. Create it first.');
   } else {
     Logger.log('✅ Newsletter sheet found');
+  }
+}
+
+// Send email notification when a new contact form is submitted
+function sendNotificationEmail(data) {
+  try {
+    const subject = `🔔 New Lead: ${data.name} — ${data.service || 'General Inquiry'}`;
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #1a1a2e; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+          <h2 style="margin: 0;">✨ New Contact Form Submission</h2>
+          <p style="margin: 5px 0 0; opacity: 0.8;">The Impacts — Lead Notification</p>
+        </div>
+        <div style="border: 1px solid #e0e0e0; border-top: none; padding: 20px; border-radius: 0 0 8px 8px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Name</td><td style="padding: 8px 0;">${data.name}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Email</td><td style="padding: 8px 0;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Phone</td><td style="padding: 8px 0;">${data.phone || 'Not provided'}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Service</td><td style="padding: 8px 0;">${data.service || 'Not specified'}</td></tr>
+            <tr><td style="padding: 8px 0; font-weight: bold; color: #555;">Budget</td><td style="padding: 8px 0;">${data.budget || 'Not specified'}</td></tr>
+          </table>
+          <div style="margin-top: 15px; padding: 15px; background: #f5f5f5; border-radius: 6px;">
+            <p style="margin: 0 0 5px; font-weight: bold; color: #555;">Message:</p>
+            <p style="margin: 0; white-space: pre-wrap;">${data.message}</p>
+          </div>
+          <p style="margin-top: 20px; font-size: 12px; color: #999;">Submitted at ${new Date().toLocaleString()}</p>
+        </div>
+      </div>
+    `;
+
+    MailApp.sendEmail({
+      to: NOTIFY_EMAIL,
+      subject: subject,
+      htmlBody: htmlBody
+    });
+  } catch (err) {
+    // Log but don't fail the form submission if email fails
+    Logger.log('Email notification failed: ' + err.toString());
   }
 }
