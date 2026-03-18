@@ -15,11 +15,17 @@ ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-if not MONGO_URL or not DB_NAME:
+mongo_url = os.environ.get('MONGO_URL')
+db_name = os.environ.get('DB_NAME')
 
+if not mongo_url or not db_name:
+    raise ValueError(
+        "Missing required environment variables: "
+        "MONGO_URL and DB_NAME must be set in backend/.env"
+    )
+
+client = AsyncIOMotorClient(mongo_url)
+db = client[db_name]
 
 # Create the main app without a prefix
 app = FastAPI(title="The Impacts API", version="1.0.0")
@@ -161,10 +167,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=[
-        "https://theimpacts.agency",      # Your frontend domain
-        "https://www.theimpacts.agency",  # With www
-        "http://localhost:3000",          # Local development
-        "*"                               # Or allow all (less secure)
+        "https://theimpacts.agency",
+        "https://www.theimpacts.agency",
+        "http://localhost:3000",
     ],
     allow_methods=["*"],
     allow_headers=["*"],
